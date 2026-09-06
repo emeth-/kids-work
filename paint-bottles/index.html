@@ -1,0 +1,2208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Paint Bottles">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#E7EAE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121714" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  html { color-scheme: light dark; }
+  body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Paint Bottles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #E7EAE6;
+    --surface: #F2F4F1;
+    --bench: #DCE0DA;
+    --ink: #1B211E;
+    --ink-soft: #59615C;
+    --ink-faint: #858E88;
+    --line: #C6CCC4;
+    --line-soft: #D6DBD3;
+    --accent: #2C6A59;
+    --accent-ink: #F2F4F1;
+    --glass: #A2ADA6;
+    --glass-fill: rgba(255,255,255,0.40);
+    --sheen-a: rgba(255,255,255,0.60);
+    --sheen-b: rgba(255,255,255,0.20);
+    --meniscus: rgba(255,255,255,0.32);
+    --seg-edge: rgba(0,0,0,0.14);
+    --cork: linear-gradient(180deg, #C99B62, #9A6E3E);
+    --cast: rgba(27,33,30,0.18);
+    --ring: rgba(44,106,89,0.38);
+    --warn: #B4553C;
+    --veil: rgba(220,224,218,0.90);
+    --grid: rgba(27,33,30,0.055);
+    --grid-bold: rgba(27,33,30,0.09);
+    --mesh: rgba(27,33,30,0.038);
+    --bfly: 0.42;
+    --flora: 0.40;
+    --stem: #6E8A63;
+    --glow: #E9C55A;
+    --silhouette: #0A1018;
+    --play: 0.66;
+    --band: rgba(59,46,35,0.22);
+    --metal: #7E8B98;
+    --metal-lt: #B2BDC8;
+    --chain: #939CA8;
+    --rubber: #33333A;
+    --pl-a: #EFAF3A;
+    --pl-b: #D45242;
+    --pl-c: #4E9BD1;
+    --grass-a: #8CB264;
+    --grass-b: #6A9247;
+    --mulch: #C6A176;
+
+    --tube-w: clamp(46px, 9.2vw, 60px);
+    --unit: clamp(25px, 5vw, 33px);
+    --vh: calc(var(--unit) * 5.72);
+
+    --bottle: polygon(
+      30% 0%, 70% 0%, 70% 3.5%, 66% 6.5%, 66% 17%,
+      96% 25%, 100% 30%, 100% 96%, 97% 100%,
+      3% 100%, 0% 96%, 0% 30%, 4% 25%,
+      34% 17%, 34% 6.5%, 30% 3.5%
+    );
+  }
+
+  :root:not([data-theme="light"]) { color-scheme: light dark; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #121714;
+      --surface: #1B211D;
+      --bench: #1F2622;
+      --ink: #E4E9E4;
+      --ink-soft: #96A09A;
+      --ink-faint: #6E7872;
+      --line: #2C3630;
+      --line-soft: #232B26;
+      --accent: #5FB89C;
+      --accent-ink: #101512;
+      --glass: #4E5B53;
+      --glass-fill: rgba(255,255,255,0.06);
+      --sheen-a: rgba(255,255,255,0.18);
+      --sheen-b: rgba(255,255,255,0.06);
+      --meniscus: rgba(255,255,255,0.18);
+      --seg-edge: rgba(0,0,0,0.30);
+      --cork: linear-gradient(180deg, #A5794A, #74522F);
+      --cast: rgba(0,0,0,0.45);
+      --ring: rgba(95,184,156,0.42);
+      --warn: #D98A6E;
+      --veil: rgba(31,38,34,0.90);
+      --grid: rgba(255,255,255,0.045);
+      --grid-bold: rgba(255,255,255,0.075);
+      --mesh: rgba(255,255,255,0.030);
+      --bfly: 0.36;
+      --flora: 0.34;
+      --stem: #526B4B;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #121714;
+    --surface: #1B211D;
+    --bench: #1F2622;
+    --ink: #E4E9E4;
+    --ink-soft: #96A09A;
+    --ink-faint: #6E7872;
+    --line: #2C3630;
+    --line-soft: #232B26;
+    --accent: #5FB89C;
+    --accent-ink: #101512;
+    --glass: #4E5B53;
+    --glass-fill: rgba(255,255,255,0.06);
+    --sheen-a: rgba(255,255,255,0.18);
+    --sheen-b: rgba(255,255,255,0.06);
+    --meniscus: rgba(255,255,255,0.18);
+    --seg-edge: rgba(0,0,0,0.30);
+    --cork: linear-gradient(180deg, #A5794A, #74522F);
+    --cast: rgba(0,0,0,0.45);
+    --ring: rgba(95,184,156,0.42);
+    --warn: #D98A6E;
+    --veil: rgba(31,38,34,0.90);
+    --grid: rgba(255,255,255,0.045);
+    --grid-bold: rgba(255,255,255,0.075);
+    --mesh: rgba(255,255,255,0.030);
+    --bfly: 0.36;
+    --flora: 0.34;
+    --stem: #526B4B;
+  }
+
+  /* Night scene: wins over either theme, so the whole page turns to dusk. */
+  :root[data-scene="dusk"] {
+    color-scheme: dark;
+    --ground: #0D131F;
+    --surface: #17202F;
+    --ink: #E8EDF5;
+    --ink-soft: #9BA8BD;
+    --ink-faint: #6F7C91;
+    --line: #27324A;
+    --line-soft: #1E2739;
+    --accent: #E6BE63;
+    --accent-ink: #14192A;
+    --glass: #46536B;
+    --glass-fill: rgba(255,255,255,0.055);
+    --sheen-a: rgba(255,255,255,0.16);
+    --sheen-b: rgba(255,255,255,0.05);
+    --meniscus: rgba(255,255,255,0.16);
+    --seg-edge: rgba(0,0,0,0.34);
+    --cork: linear-gradient(180deg, #A5794A, #74522F);
+    --cast: rgba(0,0,0,0.55);
+    --ring: rgba(230,190,99,0.40);
+    --warn: #D98A6E;
+    --veil: rgba(14,20,32,0.92);
+    --mesh: rgba(255,255,255,0.020);
+    --glow: #E9C55A;
+    --silhouette: #060A12;
+  }
+
+  /* Golden-hour playground. */
+  :root[data-scene="play"] {
+    color-scheme: light;
+    --ground: #F0E2CC;
+    --surface: #FAF3E7;
+    --ink: #2B2118;
+    --ink-soft: #6A5947;
+    --ink-faint: #97866D;
+    --line: #D8C6A9;
+    --line-soft: #E5D7BF;
+    --accent: #14666F;
+    --accent-ink: #F7F1E6;
+    --glass: #B3A288;
+    --glass-fill: rgba(255,255,255,0.46);
+    --sheen-a: rgba(255,255,255,0.66);
+    --sheen-b: rgba(255,255,255,0.24);
+    --meniscus: rgba(255,255,255,0.36);
+    --seg-edge: rgba(60,40,20,0.16);
+    --cast: rgba(74,54,32,0.22);
+    --ring: rgba(20,102,111,0.34);
+    --veil: rgba(240,226,204,0.93);
+    --mesh: rgba(74,54,32,0.030);
+    --silhouette: #3B2E23;
+    --band: rgba(59,46,35,0.22);
+    --play: 0.68;
+  }
+
+  :root[data-scene="play"] body {
+    background-color: #F0E2CC;
+    background-image:
+      repeating-linear-gradient(45deg, var(--mesh) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(-45deg, var(--mesh) 0 1px, transparent 1px 26px),
+      radial-gradient(56% 40% at 78% 10%, rgba(255,208,128,0.55), rgba(255,208,128,0) 70%),
+      linear-gradient(180deg, #E7D2AE 0%, #F2E5D0 46%, #EEDCC2 100%);
+  }
+
+  :root[data-scene="dusk"] body {
+    background-color: #0D131F;
+    background-image:
+      repeating-linear-gradient(45deg, var(--mesh) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(-45deg, var(--mesh) 0 1px, transparent 1px 26px),
+      radial-gradient(130% 70% at 50% 104%, rgba(74,116,104,0.30), rgba(0,0,0,0) 62%),
+      linear-gradient(180deg, #070C16 0%, #0E1724 48%, #131E2B 100%);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--ground);
+    background-image:
+      repeating-linear-gradient(45deg, var(--mesh) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(-45deg, var(--mesh) 0 1px, transparent 1px 26px);
+    background-attachment: fixed;
+    overscroll-behavior: none;
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 20px 44px;
+    padding: calc(28px + env(safe-area-inset-top, 0px))
+             calc(20px + env(safe-area-inset-right, 0px))
+             calc(44px + env(safe-area-inset-bottom, 0px))
+             calc(20px + env(safe-area-inset-left, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* --- flowers --- */
+
+  .flora-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: var(--flora);
+  }
+
+  .stalk {
+    position: absolute;
+    bottom: 0;
+    translate: -50% 0;
+    transform-origin: bottom center;
+    animation: sway var(--sway) ease-in-out var(--swaydelay) infinite alternate;
+  }
+
+  @keyframes sway {
+    from { transform: rotate(-2.4deg); }
+    to   { transform: rotate(2.4deg); }
+  }
+
+  .flower { display: block; height: var(--h); width: auto; }
+
+  .flower .stem {
+    fill: none;
+    stroke: var(--stem);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .flower .leaf { fill: var(--stem); }
+  .flower .petal { fill: var(--bloom); }
+  .flower .eye { fill: var(--eye); }
+
+  /* --- playground --- */
+
+  .play-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: var(--play);
+  }
+
+  .ground-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 76px;
+    background:
+      linear-gradient(180deg, rgba(140,178,100,0) 0%, var(--grass-a) 30%, var(--grass-b) 100%);
+  }
+
+  .mtl { fill: var(--metal); }
+  .mtl-lt { fill: var(--metal-lt); }
+  .rub { fill: var(--rubber); }
+  .pl-a { fill: var(--pl-a); }
+  .pl-b { fill: var(--pl-b); }
+  .pl-c { fill: var(--pl-c); }
+  .mulch { fill: var(--mulch); }
+
+  .chain {
+    fill: none;
+    stroke: var(--chain);
+    stroke-width: 2.4;
+    stroke-dasharray: 3.5 2.6;
+    stroke-linecap: round;
+  }
+
+  .rail {
+    fill: none;
+    stroke: var(--metal);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .rail-lt { stroke: var(--metal-lt); stroke-width: 3; }
+
+  .rig {
+    position: absolute;
+    bottom: 0;
+    translate: -50% 0;
+  }
+
+  .rig svg { display: block; height: var(--h); width: auto; }
+
+  .solid { fill: var(--silhouette); }
+
+  .bar {
+    fill: none;
+    stroke: var(--silhouette);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .thin { stroke-width: 3; }
+
+  .swing, .plank {
+    transform-box: view-box;
+    transform-origin: var(--ox) var(--oy);
+  }
+
+  .swing { animation: swingArc var(--sw) ease-in-out infinite alternate; }
+  .plank { animation: teeter var(--tt) ease-in-out infinite alternate; }
+
+  @keyframes swingArc {
+    from { transform: rotate(-25deg); }
+    to   { transform: rotate(25deg); }
+  }
+
+  @keyframes teeter {
+    from { transform: rotate(-11deg); }
+    to   { transform: rotate(11deg); }
+  }
+
+  .hop { animation: hop var(--hp) ease-in-out infinite alternate; }
+
+  @keyframes hop {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-12px); }
+  }
+
+  .kid { display: block; width: calc(32px * var(--scale)); height: auto; }
+
+  .ball {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #F4F1EA 0 12%, var(--pl-c) 42%, #2F6FA0 100%);
+    animation: bounce var(--bd) cubic-bezier(.32,0,.68,1) infinite alternate;
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-96px); }
+  }
+
+  .kite {
+    position: absolute;
+    animation: kiteDrift 24s ease-in-out infinite alternate;
+  }
+
+  @keyframes kiteDrift {
+    from { transform: translate(-5vw, 6px) rotate(-9deg); }
+    to   { transform: translate(5vw, -34px) rotate(9deg); }
+  }
+
+  /* --- fireflies & night grass --- */
+
+  .ffly-layer, .grass-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ffly-path {
+    position: absolute;
+    animation: wanderX var(--dur) ease-in-out var(--delay) infinite alternate;
+  }
+
+  @keyframes wanderX {
+    from { transform: translateX(calc(var(--dx) * -1)); }
+    to   { transform: translateX(var(--dx)); }
+  }
+
+  .ffly-y { animation: wanderY var(--dur2) ease-in-out infinite alternate; }
+
+  @keyframes wanderY {
+    from { transform: translateY(calc(var(--dy) * -1)); }
+    to   { transform: translateY(var(--dy)); }
+  }
+
+  .ffly {
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: var(--glow);
+    box-shadow: 0 0 6px 2px rgba(233,197,90,0.60), 0 0 20px 8px rgba(233,197,90,0.24);
+    animation: blink var(--blink) ease-in-out var(--bdelay) infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.05; }
+    10%      { opacity: 1; }
+    22%      { opacity: 0.09; }
+    34%      { opacity: 0.85; }
+    48%      { opacity: 0.04; }
+    70%      { opacity: 0.55; }
+    84%      { opacity: 0.07; }
+  }
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #D9E3F5;
+    animation: twinkle var(--t) ease-in-out var(--delay) infinite alternate;
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.10; }
+    to   { opacity: 0.65; }
+  }
+
+  .clump {
+    position: absolute;
+    bottom: 0;
+    translate: -50% 0;
+    transform-origin: bottom center;
+    animation: sway var(--sway) ease-in-out var(--swaydelay) infinite alternate;
+  }
+
+  .grass { display: block; height: var(--h); width: auto; }
+  .grass path { fill: var(--silhouette); }
+
+  /* --- butterflies --- */
+
+  .bfly-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: var(--bfly);
+  }
+
+  .bfly-path {
+    position: absolute;
+    top: var(--y);
+    left: 0;
+    will-change: transform;
+    animation: driftX var(--dur) linear var(--delay) infinite;
+  }
+
+  .bfly-path.rev { animation-name: driftXrev; }
+  .bfly-path.rev .bfly { transform: scaleX(-1); }
+
+  @keyframes driftX {
+    from { transform: translateX(-14vw); }
+    to   { transform: translateX(114vw); }
+  }
+
+  @keyframes driftXrev {
+    from { transform: translateX(114vw); }
+    to   { transform: translateX(-14vw); }
+  }
+
+  .bfly-bob { animation: bob var(--bob) ease-in-out infinite alternate; }
+
+  @keyframes bob {
+    from { transform: translateY(-13px) rotate(-7deg); }
+    to   { transform: translateY(13px) rotate(7deg); }
+  }
+
+  .bfly {
+    display: block;
+    width: calc(46px * var(--scale));
+    height: auto;
+  }
+
+  .bfly .w {
+    fill: var(--wing);
+    transform-box: fill-box;
+    animation: flap var(--flap) ease-in-out infinite;
+  }
+
+  .bfly .wl { transform-origin: right center; }
+  .bfly .wr { transform-origin: left center; }
+
+  @keyframes flap {
+    0%, 100% { transform: scaleX(1); }
+    50%      { transform: scaleX(0.26); }
+  }
+
+  .bfly .body { fill: var(--ink-soft); }
+
+  .bfly .ant {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 0.7;
+    stroke-linecap: round;
+  }
+
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(26px, 5vw, 34px);
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .stats { display: flex; gap: 20px; }
+
+  .stat { display: flex; flex-direction: column; gap: 3px; min-width: 54px; }
+
+  .stat .k {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .stat .v {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .stage { position: relative; }
+
+  #fx {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .winpanel {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .wincard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 26px 32px 24px;
+    background: var(--veil);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 12px 34px var(--cast);
+    animation: panelIn 320ms cubic-bezier(.2,.8,.3,1);
+  }
+
+  @keyframes panelIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .win-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .win-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(24px, 5.5vw, 32px);
+    line-height: 1.1;
+    margin: 4px 0 2px;
+    text-align: center;
+  }
+
+  .win-sub {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+    letter-spacing: 0.04em;
+  }
+
+  .win-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+  button.ghostbtn {
+    background: none;
+    border: 0;
+    padding: 4px 2px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  button.ghostbtn:hover { color: var(--ink); }
+  button.ghostbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  button.big {
+    font-size: 13.5px;
+    padding: 11px 22px;
+  }
+
+  .board {
+    background: none;
+    border: 0;
+    padding: 26px 12px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 24px 14px;
+    min-height: calc(var(--vh) + 48px);
+  }
+
+  .bottle {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    width: var(--tube-w);
+    height: var(--vh);
+    position: relative;
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    filter: drop-shadow(0 3px 3px var(--cast));
+    transition: transform 170ms cubic-bezier(.2,.7,.3,1), filter 170ms ease;
+  }
+
+  .glass {
+    position: absolute;
+    inset: 0;
+    background: var(--glass);
+    clip-path: var(--bottle);
+    transition: background 160ms ease;
+  }
+
+  .inner {
+    position: absolute;
+    inset: 2px;
+    clip-path: var(--bottle);
+    background: var(--glass-fill);
+    display: flex;
+    flex-direction: column-reverse;
+    overflow: hidden;
+  }
+
+  .inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(101deg,
+      var(--sheen-a) 0 10%,
+      transparent 12% 78%,
+      var(--sheen-b) 81% 100%);
+  }
+
+  .cork {
+    position: absolute;
+    left: 32%;
+    width: 36%;
+    top: 1.5%;
+    height: 8%;
+    border-radius: 2px 2px 1px 1px;
+    background: var(--cork);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.22);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(.2,.7,.3,1);
+    pointer-events: none;
+  }
+
+  .bottle.done .cork { opacity: 1; transform: translateY(0); }
+
+  .bottle.sel {
+    transform: translateY(-16px);
+    filter: drop-shadow(0 10px 8px var(--cast)) drop-shadow(0 0 6px var(--ring));
+  }
+
+  .bottle.sel .glass { background: var(--accent); }
+
+  .bottle.hint .glass { background: var(--accent); }
+
+  .bottle.hint { animation: nudge 900ms ease-in-out infinite; }
+
+  .bottle.drag { cursor: grabbing; }
+
+  .bottle.target { transform: translateY(-9px); }
+  .bottle.target .glass { background: var(--accent); }
+
+  .bottle.no .glass { background: var(--warn); }
+
+  .ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 60;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    transform: translate(-50%, -52%) rotate(-9deg);
+    filter: drop-shadow(0 7px 9px var(--cast));
+  }
+
+  .ghost span {
+    display: block;
+    width: calc(var(--tube-w) * 0.58);
+    height: calc(var(--unit) * 0.58);
+    border-radius: 2px;
+    box-shadow: inset 0 -1px 0 var(--seg-edge);
+  }
+
+  .seg.ghosted { opacity: 0.18; }
+
+  @keyframes nudge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .bottle:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+  .seg {
+    height: var(--unit);
+    flex: 0 0 var(--unit);
+    background: var(--c);
+    box-shadow: inset 0 -1px 0 var(--seg-edge);
+    position: relative;
+  }
+
+  .seg:last-child::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--meniscus);
+  }
+
+  .seg.arrive {
+    transform-origin: bottom;
+    animation: pourIn 210ms cubic-bezier(.25,.8,.35,1);
+  }
+
+  @keyframes pourIn {
+    from { transform: scaleY(0.02); opacity: 0.55; }
+    to   { transform: scaleY(1); opacity: 1; }
+  }
+
+  .statusbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 22px;
+    flex-wrap: wrap;
+  }
+
+  .msg { font-family: "Fraunces", Georgia, serif; font-size: 16px; margin: 0; }
+
+  .msg.quiet {
+    color: var(--ink-soft);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 13px;
+  }
+
+  .pigment {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  button.act {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: border-color 120ms ease;
+  }
+
+  button.act:hover:not(:disabled) { border-color: var(--ink-soft); }
+  button.act:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  button.act.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .legend {
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rules {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+  .sw {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .sw i {
+    width: 9px; height: 9px;
+    border-radius: 1px;
+    background: var(--c);
+    display: block;
+    box-shadow: inset 0 0 0 1px var(--seg-edge);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bottle, .seg.arrive, .cork, .wincard, .stalk,
+    .bfly-path, .bfly-bob, .bfly .w,
+    .ffly-path, .ffly-y, .ffly, .star, .clump,
+    .swing, .plank, .hop, .ball, .kite { transition: none; animation: none; }
+    .bottle.sel { transform: none; }
+    .bfly-path, .bfly-bob, .ffly-path, .ffly-y { transform: none; }
+    .ffly { opacity: 0.8; }
+  }
+
+  /* --- narrow screens --- */
+
+  @media (max-width: 640px) {
+    :root {
+      --tube-w: clamp(38px, 12.5vw, 54px);
+      --unit: clamp(21px, 6.8vw, 30px);
+    }
+    .wrap {
+      padding: 18px 12px 34px;
+      padding: calc(18px + env(safe-area-inset-top, 0px))
+               calc(12px + env(safe-area-inset-right, 0px))
+               calc(34px + env(safe-area-inset-bottom, 0px))
+               calc(12px + env(safe-area-inset-left, 0px));
+      gap: 17px;
+    }
+    .board { padding: 20px 10px 16px; gap: 20px 10px; }
+    .masthead { align-items: flex-start; gap: 12px; }
+    .stats { gap: 15px; }
+    .stat { min-width: 46px; }
+    .stat .v { font-size: 17px; }
+    .rules { font-size: 12px; }
+    .controls { gap: 6px; }
+    button.act { padding: 8px 11px; }
+    .bfly { width: calc(38px * var(--scale)); }
+  }
+
+  @media (max-width: 400px) {
+    :root {
+      --tube-w: clamp(33px, 15vw, 46px);
+      --unit: clamp(18px, 8vw, 26px);
+    }
+    .board { padding: 16px 8px 14px; gap: 16px 8px; }
+    h1 { font-size: 24px; }
+    .stats { gap: 12px; }
+    .stat .v { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">A sorting puzzle</p>
+      <h1>Paint Bottles</h1>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="k">Round</span><span class="v" id="s-level">1</span></div>
+      <div class="stat"><span class="k">Pours</span><span class="v" id="s-moves">0</span></div>
+      <div class="stat"><span class="k">Pigments</span><span class="v" id="s-colors">4</span></div>
+    </div>
+  </header>
+
+  <div class="stage">
+    <div class="board" id="board"></div>
+    <div class="winpanel" id="win" role="status" hidden>
+      <div class="wincard">
+        <p class="win-eyebrow" id="win-eyebrow">Round 1 cleared</p>
+        <p class="win-title" id="win-title">Every pigment in its bottle</p>
+        <p class="win-sub" id="win-sub"></p>
+        <div class="win-actions">
+          <button class="act primary big" id="b-next2">Next round &rarr;</button>
+          <button class="ghostbtn" id="b-stay">Stay a moment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <p class="msg quiet" id="msg">Drag from one bottle onto another to pour — or tap one, then tap the other.</p>
+    <span class="pigment" id="pigment"></span>
+  </div>
+
+  <div class="controls">
+    <button class="act" id="b-next" hidden>Next round</button>
+    <button class="act" id="b-undo">Undo</button>
+    <button class="act" id="b-restart">Restart</button>
+    <button class="act" id="b-hint">Hint</button>
+    <button class="act" id="b-new">New round</button>
+  </div>
+
+  <div class="legend">
+    <p class="rules">Drag a bottle onto another to pour, or tap the source then the destination. Like onto like: a pour only lands on its own pigment, or into an empty bottle. The whole matching run at the top goes at once, as far as there is room. A bottle holding four of one pigment gets corked; the round is done when every bottle is either corked or empty.</p>
+    <div class="swatches" id="swatches"></div>
+  </div>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+(function () {
+  "use strict";
+
+  var CAP = 4;
+  var EMPTIES = 2;
+
+  var PIGMENTS = [
+    { hex: "#C8452F", name: "Vermilion" },
+    { hex: "#E08A38", name: "Realgar" },
+    { hex: "#E2C63F", name: "Orpiment" },
+    { hex: "#6DA646", name: "Sap Green" },
+    { hex: "#1E8C74", name: "Verdigris" },
+    { hex: "#3C79C2", name: "Cobalt" },
+    { hex: "#2C3B8E", name: "Ultramarine" },
+    { hex: "#8A55AE", name: "Tyrian" },
+    { hex: "#D0609A", name: "Rose Madder" },
+    { hex: "#7B4A2C", name: "Umber" },
+    { hex: "#48C7DC", name: "Cerulean" },
+    { hex: "#5F6B73", name: "Payne's Grey" }
+  ];
+
+  var board = document.getElementById("board");
+  var msgEl = document.getElementById("msg");
+  var pigEl = document.getElementById("pigment");
+  var swEl = document.getElementById("swatches");
+  var elLevel = document.getElementById("s-level");
+  var elMoves = document.getElementById("s-moves");
+  var elColors = document.getElementById("s-colors");
+  var stage = document.querySelector(".stage");
+  var fx = document.getElementById("fx");
+  var winEl = document.getElementById("win");
+  var winTitle = document.getElementById("win-title");
+  var winSub = document.getElementById("win-sub");
+  var bNext2 = document.getElementById("b-next2");
+  var bStay = document.getElementById("b-stay");
+  var bNext = document.getElementById("b-next");
+  var bUndo = document.getElementById("b-undo");
+  var bRestart = document.getElementById("b-restart");
+  var bHint = document.getElementById("b-hint");
+  var bNew = document.getElementById("b-new");
+
+  var level = 1;
+  var tubes = [];
+  var start = [];
+  var history = [];
+  var moves = 0;
+  var sel = -1;
+  var won = false;
+  var els = [];
+  var hintTimer = null;
+
+  function colorsFor(lvl) {
+    return Math.min(4 + Math.floor((lvl - 1) / 2), PIGMENTS.length);
+  }
+
+  /* ---------- rules ---------- */
+
+  function topRun(t) {
+    if (!t.length) return 0;
+    var c = t[t.length - 1], n = 1;
+    for (var i = t.length - 2; i >= 0; i--) { if (t[i] === c) n++; else break; }
+    return n;
+  }
+
+  function uniform(t) {
+    for (var i = 1; i < t.length; i++) if (t[i] !== t[0]) return false;
+    return true;
+  }
+
+  function legal(st, a, b) {
+    if (a === b) return false;
+    var A = st[a], B = st[b];
+    if (!A.length) return false;
+    if (B.length >= CAP) return false;
+    if (!B.length) return !uniform(A);
+    return B[B.length - 1] === A[A.length - 1];
+  }
+
+  function pour(st, a, b) {
+    var n = Math.min(topRun(st[a]), CAP - st[b].length);
+    var c = st[a][st[a].length - 1];
+    for (var i = 0; i < n; i++) { st[a].pop(); st[b].push(c); }
+    return n;
+  }
+
+  function isWon(st) {
+    for (var i = 0; i < st.length; i++) {
+      var t = st[i];
+      if (t.length === 0) continue;
+      if (t.length !== CAP || !uniform(t)) return false;
+    }
+    return true;
+  }
+
+  function clone(st) {
+    var out = [];
+    for (var i = 0; i < st.length; i++) out.push(st[i].slice());
+    return out;
+  }
+
+  /* ---------- solver ---------- */
+
+  function keyOf(st) {
+    var parts = [];
+    for (var i = 0; i < st.length; i++) parts.push(st[i].join("."));
+    parts.sort();
+    return parts.join("|");
+  }
+
+  function solve(st0, budget) {
+    var seen = Object.create(null);
+    var nodes = 0;
+    var overBudget = false;
+
+    function score(st, a, b) {
+      var s = 0;
+      var run = topRun(st[a]);
+      if (run === st[a].length) s += 4;
+      if (st[b].length && st[b].length + run === CAP) s += 6;
+      if (st[b].length) s += 2;
+      return s;
+    }
+
+    function dfs(st, path) {
+      if (isWon(st)) return path;
+      if (nodes++ > budget) { overBudget = true; return null; }
+      var k = keyOf(st);
+      if (seen[k]) return null;
+      seen[k] = 1;
+
+      var cand = [];
+      for (var a = 0; a < st.length; a++) {
+        for (var b = 0; b < st.length; b++) {
+          if (legal(st, a, b)) cand.push({ a: a, b: b, s: score(st, a, b) });
+        }
+      }
+      cand.sort(function (x, y) { return y.s - x.s; });
+
+      for (var i = 0; i < cand.length; i++) {
+        if (overBudget) return null;
+        var next = clone(st);
+        pour(next, cand[i].a, cand[i].b);
+        var r = dfs(next, path.concat([[cand[i].a, cand[i].b]]));
+        if (r) return r;
+      }
+      return null;
+    }
+
+    var res = dfs(clone(st0), []);
+    return { path: res, overBudget: overBudget };
+  }
+
+  /* ---------- generation ---------- */
+
+  function generate(n) {
+    var pool = [], i, j;
+    for (i = 0; i < n; i++) for (j = 0; j < CAP; j++) pool.push(i);
+
+    var last = null;
+    for (var attempt = 0; attempt < 30; attempt++) {
+      for (i = pool.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+      }
+      var st = [];
+      for (i = 0; i < n; i++) st.push(pool.slice(i * CAP, i * CAP + CAP));
+      for (i = 0; i < EMPTIES; i++) st.push([]);
+      if (isWon(st)) continue;
+      last = st;
+      var r = solve(st, 70000);
+      if (r.path) return st;
+    }
+    return last;
+  }
+
+  /* ---------- render ---------- */
+
+  function label(i) {
+    var t = tubes[i];
+    if (!t.length) return "Bottle " + (i + 1) + ", empty";
+    var names = [];
+    for (var k = t.length - 1; k >= 0; k--) names.push(PIGMENTS[t[k]].name);
+    return "Bottle " + (i + 1) + ", top to bottom: " + names.join(", ");
+  }
+
+  function paint(i, arriving) {
+    var el = els[i];
+    var liquid = el.querySelector(".inner");
+    liquid.textContent = "";
+    var t = tubes[i];
+    for (var k = 0; k < t.length; k++) {
+      var seg = document.createElement("span");
+      seg.className = "seg";
+      seg.style.setProperty("--c", PIGMENTS[t[k]].hex);
+      if (arriving && k >= t.length - arriving) seg.className += " arrive";
+      liquid.appendChild(seg);
+    }
+    el.classList.toggle("done", t.length === CAP && uniform(t));
+    el.setAttribute("aria-label", label(i));
+    el.title = label(i);
+  }
+
+  function buildBoard() {
+    board.textContent = "";
+    els = [];
+    for (var i = 0; i < tubes.length; i++) {
+      var el = document.createElement("button");
+      el.className = "bottle";
+      el.type = "button";
+      el.dataset.i = String(i);
+      el.innerHTML = '<span class="glass"></span><span class="inner"></span><span class="cork"></span>';
+      board.appendChild(el);
+      els.push(el);
+      paint(i, 0);
+    }
+    fitBoard();
+  }
+
+  /* Keep rows balanced: 14 bottles read better as 7 + 7 than 5 + 5 + 4. */
+  function fitBoard() {
+    if (!els.length) return;
+    stage.style.maxWidth = "none";
+    var cs = getComputedStyle(board);
+    var gap = parseFloat(cs.columnGap) || 14;
+    var padL = parseFloat(cs.paddingLeft) || 0;
+    var padR = parseFloat(cs.paddingRight) || 0;
+    var w = els[0].getBoundingClientRect().width;
+    if (!w) return;
+    var avail = board.clientWidth - padL - padR;
+    var maxPerRow = Math.max(2, Math.floor((avail + gap) / (w + gap)));
+    var n = els.length;
+    var rows = Math.ceil(n / maxPerRow);
+    var perRow = Math.ceil(n / rows);
+    stage.style.maxWidth = Math.ceil(perRow * (w + gap) - gap + padL + padR + 2) + "px";
+    stage.style.marginLeft = "auto";
+    stage.style.marginRight = "auto";
+  }
+
+  function buildSwatches(n) {
+    swEl.textContent = "";
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement("span");
+      s.className = "sw";
+      var chip = document.createElement("i");
+      chip.style.setProperty("--c", PIGMENTS[i].hex);
+      s.appendChild(chip);
+      s.appendChild(document.createTextNode(PIGMENTS[i].name));
+      swEl.appendChild(s);
+    }
+  }
+
+  function setMsg(text, strong) {
+    msgEl.textContent = text;
+    msgEl.className = strong ? "msg" : "msg quiet";
+  }
+
+  function refresh() {
+    elLevel.textContent = String(level);
+    elMoves.textContent = String(moves);
+    elColors.textContent = String(colorsFor(level));
+    bUndo.disabled = history.length === 0 || won;
+    bHint.disabled = won;
+  }
+
+  function clearHint() {
+    if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+    for (var i = 0; i < els.length; i++) els[i].classList.remove("hint");
+  }
+
+  function setSel(i) {
+    if (sel >= 0 && els[sel]) els[sel].classList.remove("sel");
+    sel = i;
+    if (sel >= 0) {
+      els[sel].classList.add("sel");
+      var t = tubes[sel];
+      pigEl.textContent = t.length
+        ? PIGMENTS[t[t.length - 1]].name + " — " + topRun(t) + " up top"
+        : "";
+    } else {
+      pigEl.textContent = "";
+    }
+  }
+
+  /* ---------- fireworks ---------- */
+
+  var ctx = fx.getContext("2d");
+  var shells = [];
+  var sparks = [];
+  var flashes = [];
+  var raf = null;
+  var queue = [];
+  var W = 0, H = 0;
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    fx.width = Math.round(W * dpr);
+    fx.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function levelHues() {
+    var n = colorsFor(level);
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(PIGMENTS[i].hex);
+    return out;
+  }
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  function spark(x, y, vx, vy, life, w, c, drag, grav) {
+    sparks.push({
+      x: x, y: y, px: x, py: y,
+      vx: vx, vy: vy,
+      life: life, age: 0,
+      w: w, c: c,
+      drag: drag, grav: grav
+    });
+  }
+
+  function burst(x, y, hex, kind, power) {
+    flashes.push({ x: x, y: y, r: 8, max: 90 * power, age: 0, life: 16, c: hex });
+
+    var i, a, sp, n;
+
+    if (kind === "ring") {
+      n = 84;
+      var tilt = 0.55 + Math.random() * 0.5;
+      for (i = 0; i < n; i++) {
+        a = (i / n) * Math.PI * 2;
+        sp = (5.4 + Math.random() * 0.7) * power;
+        spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp * tilt,
+              64 + Math.random() * 26, 1.5 + Math.random() * 1.4, hex, 0.984, 0.055);
+      }
+    } else if (kind === "willow") {
+      n = 96;
+      for (i = 0; i < n; i++) {
+        a = Math.random() * Math.PI * 2;
+        sp = (1.4 + Math.random() * 3.6) * power;
+        spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp,
+              130 + Math.random() * 60, 1.7 + Math.random() * 1.5, hex, 0.9935, 0.075);
+      }
+    } else if (kind === "palm") {
+      n = 46;
+      for (i = 0; i < n; i++) {
+        a = Math.random() * Math.PI * 2;
+        sp = (5 + Math.random() * 3.4) * power;
+        spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp,
+              84 + Math.random() * 40, 2.6 + Math.random() * 1.8, hex, 0.988, 0.07);
+      }
+    } else {
+      n = 132;
+      for (i = 0; i < n; i++) {
+        a = Math.random() * Math.PI * 2;
+        sp = (0.7 + Math.pow(Math.random(), 0.55) * 7.2) * power;
+        spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp,
+              62 + Math.random() * 44, 1.3 + Math.random() * 1.7, hex, 0.985, 0.062);
+      }
+    }
+
+    /* crackle: a scatter of pale flecks over the top of every burst */
+    for (i = 0; i < 26; i++) {
+      a = Math.random() * Math.PI * 2;
+      sp = (1 + Math.random() * 4.5) * power;
+      spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp,
+            26 + Math.random() * 26, 1.1, "#FFF3D0", 0.978, 0.05);
+    }
+  }
+
+  function launch(power) {
+    var hues = levelHues();
+    shells.push({
+      x: W * (0.08 + Math.random() * 0.84),
+      y: H + 8,
+      vx: (Math.random() - 0.5) * 1.1,
+      vy: -(H / 62) * (0.92 + Math.random() * 0.3),
+      goal: H * (0.08 + Math.random() * 0.34),
+      c: pick(hues),
+      kind: pick(["sphere", "sphere", "sphere", "ring", "willow", "palm"]),
+      power: power
+    });
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    var now = performance.now();
+    var i, s;
+
+    while (queue.length && now >= queue[0].t) {
+      launch(queue.shift().p);
+    }
+
+    ctx.globalCompositeOperation = "lighter";
+
+    for (i = flashes.length - 1; i >= 0; i--) {
+      var f = flashes[i];
+      f.age++;
+      if (f.age > f.life) { flashes.splice(i, 1); continue; }
+      var ft = 1 - f.age / f.life;
+      var rad = f.r + (f.max - f.r) * (1 - ft * ft);
+      var g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, rad);
+      g.addColorStop(0, f.c);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalAlpha = ft * 0.5;
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, rad, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (i = shells.length - 1; i >= 0; i--) {
+      s = shells[i];
+      s.px = s.x; s.py = s.y;
+      s.x += s.vx;
+      s.y += s.vy;
+      s.vy += 0.1;
+      ctx.globalAlpha = 0.95;
+      ctx.strokeStyle = s.c;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(s.px, s.py);
+      ctx.lineTo(s.x, s.y);
+      ctx.stroke();
+      if (Math.random() < 0.7) {
+        spark(s.x, s.y, (Math.random() - 0.5) * 0.7, 0.4 + Math.random(),
+              14 + Math.random() * 12, 1, "#FFE9B0", 0.95, 0.02);
+      }
+      if (s.y <= s.goal || s.vy >= -0.5) {
+        burst(s.x, s.y, s.c, s.kind, s.power);
+        shells.splice(i, 1);
+      }
+    }
+
+    for (i = sparks.length - 1; i >= 0; i--) {
+      s = sparks[i];
+      s.px = s.x; s.py = s.y;
+      s.x += s.vx;
+      s.y += s.vy;
+      s.vx *= s.drag;
+      s.vy = s.vy * s.drag + s.grav;
+      s.age++;
+      if (s.age > s.life || s.y > H + 60) { sparks.splice(i, 1); continue; }
+      var t = 1 - s.age / s.life;
+      var al = t * t;
+      if (t < 0.55) al *= 0.45 + 0.55 * Math.random();
+      ctx.globalAlpha = al;
+      ctx.strokeStyle = s.c;
+      ctx.lineWidth = s.w;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(s.px, s.py);
+      ctx.lineTo(s.x, s.y);
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    if (shells.length || sparks.length || flashes.length || queue.length) {
+      raf = requestAnimationFrame(tick);
+    } else {
+      raf = null;
+      ctx.clearRect(0, 0, W, H);
+    }
+  }
+
+  function celebrate() {
+    if (calm) return;
+    sizeCanvas();
+    shells = [];
+    sparks = [];
+    flashes = [];
+    queue = [];
+
+    var now = performance.now();
+    var t = now + 120;
+
+    /* opening salvo, a rolling middle, then a finale of five at once */
+    for (var i = 0; i < 16; i++) {
+      queue.push({ t: t, p: 0.85 + Math.random() * 0.4 });
+      t += 150 + Math.random() * 260;
+    }
+    for (var j = 0; j < 5; j++) {
+      queue.push({ t: t + j * 60, p: 1.35 + Math.random() * 0.35 });
+    }
+    queue.sort(function (a, b) { return a.t - b.t; });
+
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function stopFx() {
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    shells = [];
+    sparks = [];
+    flashes = [];
+    queue = [];
+    if (W && H) ctx.clearRect(0, 0, W, H);
+  }
+
+  var reflowTimer = null;
+  window.addEventListener("resize", function () {
+    if (reflowTimer) clearTimeout(reflowTimer);
+    reflowTimer = setTimeout(function () {
+      fitBoard();
+      if (raf) sizeCanvas();
+    }, 120);
+  });
+
+  /* ---------- flowers ---------- */
+
+  function flowers() {
+    var layer = document.createElement("div");
+    layer.className = "flora-layer";
+    layer.setAttribute("aria-hidden", "true");
+
+    var BLOOMS = [0, 1, 2, 5, 6, 7, 8, 10];
+    var EYES = ["#E2C63F", "#E08A38", "#EFE0A8"];
+    var n = window.innerWidth < 640 ? 7 : 11;
+
+    for (var i = 0; i < n; i++) {
+      var st = document.createElement("div");
+      st.className = "stalk";
+      st.style.left = ((i + 0.5) / n * 100 + (Math.random() - 0.5) * (70 / n)).toFixed(1) + "%";
+      st.style.bottom = (-8 - Math.random() * 20).toFixed(0) + "px";
+      st.style.setProperty("--sway", (4 + Math.random() * 3.6).toFixed(2) + "s");
+      st.style.setProperty("--swaydelay", (-Math.random() * 5).toFixed(2) + "s");
+
+      var petals = "";
+      for (var k = 0; k < 6; k++) {
+        petals += '<ellipse class="petal" cx="22" cy="28" rx="7" ry="12" transform="rotate(' +
+                  (k * 60) + ' 22 40)"/>';
+      }
+
+      st.innerHTML =
+        '<svg class="flower" viewBox="0 0 44 130" style="--h:' + (94 + Math.random() * 106).toFixed(0) +
+        'px;--bloom:' + PIGMENTS[BLOOMS[Math.floor(Math.random() * BLOOMS.length)]].hex +
+        ';--eye:' + EYES[Math.floor(Math.random() * EYES.length)] + '">' +
+        '<path class="stem" d="M22 130 C20 112 24 92 22 68 C21 60 22 56 22 52"/>' +
+        '<path class="leaf" d="M22 92 C14 88 8 80 10 74 C17 74 22 82 22 92 Z"/>' +
+        '<path class="leaf" d="M22 108 C30 104 36 96 34 90 C27 90 22 98 22 108 Z"/>' +
+        petals +
+        '<circle class="eye" cx="22" cy="40" r="5"/>' +
+        '</svg>';
+
+      layer.appendChild(st);
+    }
+    addLayer(layer);
+  }
+
+  /* ---------- butterflies ---------- */
+
+  var WING_L = "M20 16 C16 5 3 1 1.5 8.5 C0 15 11 16.8 20 16 Z " +
+               "M20 16.5 C12.5 18 5 22 7.5 29 C10 35.5 18.5 26.5 20 16.5 Z";
+  var WING_R = "M20 16 C24 5 37 1 38.5 8.5 C40 15 29 16.8 20 16 Z " +
+               "M20 16.5 C27.5 18 35 22 32.5 29 C30 35.5 21.5 26.5 20 16.5 Z";
+
+  function butterflies() {
+    var layer = document.createElement("div");
+    layer.className = "bfly-layer";
+    layer.setAttribute("aria-hidden", "true");
+
+    for (var i = 0; i < 8; i++) {
+      var hex = PIGMENTS[Math.floor(Math.random() * PIGMENTS.length)].hex;
+      var path = document.createElement("div");
+      path.className = "bfly-path" + (Math.random() < 0.45 ? " rev" : "");
+      path.style.setProperty("--y", (5 + Math.random() * 84).toFixed(1) + "%");
+      path.style.setProperty("--dur", (32 + Math.random() * 34).toFixed(1) + "s");
+      path.style.setProperty("--delay", (-Math.random() * 60).toFixed(1) + "s");
+      path.style.setProperty("--scale", (0.5 + Math.random() * 0.75).toFixed(2));
+
+      var bob = document.createElement("div");
+      bob.className = "bfly-bob";
+      bob.style.setProperty("--bob", (2.4 + Math.random() * 2.4).toFixed(2) + "s");
+
+      bob.innerHTML =
+        '<svg class="bfly" viewBox="0 0 40 36" style="--wing:' + hex +
+        ';--flap:' + (0.42 + Math.random() * 0.5).toFixed(2) + 's">' +
+        '<path class="w wl" d="' + WING_L + '"/>' +
+        '<path class="w wr" d="' + WING_R + '"/>' +
+        '<ellipse class="body" cx="20" cy="17" rx="1.25" ry="6.4"/>' +
+        '<path class="ant" d="M19.4 11.4 C17.6 7.8 15.2 6.4 13.7 6.9"/>' +
+        '<path class="ant" d="M20.6 11.4 C22.4 7.8 24.8 6.4 26.3 6.9"/>' +
+        '</svg>';
+
+      if (calm) path.style.left = (4 + Math.random() * 86).toFixed(1) + "%";
+
+      path.appendChild(bob);
+      layer.appendChild(path);
+    }
+    addLayer(layer);
+  }
+
+  /* ---------- fireflies & night grass ---------- */
+
+  var BLADES = [
+    "M35 150 C31 112 26 86 14 62 C24 88 33 114 39 150 Z",
+    "M35 150 C36 116 40 88 54 66 C46 92 41 118 41 150 Z",
+    "M35 150 C30 120 24 100 6 84 C20 104 30 124 36 150 Z",
+    "M35 150 C38 122 44 104 62 90 C48 108 41 126 40 150 Z",
+    "M35 150 C34 112 35 82 33 52 C31 84 30 114 31 150 Z"
+  ];
+
+  function nightGrass() {
+    var layer = document.createElement("div");
+    layer.className = "grass-layer";
+    layer.setAttribute("aria-hidden", "true");
+    var n = window.innerWidth < 640 ? 8 : 13;
+
+    for (var i = 0; i < n; i++) {
+      var c = document.createElement("div");
+      c.className = "clump";
+      c.style.left = ((i + 0.5) / n * 100 + (Math.random() - 0.5) * (80 / n)).toFixed(1) + "%";
+      c.style.bottom = (-6 - Math.random() * 16).toFixed(0) + "px";
+      c.style.setProperty("--sway", (5 + Math.random() * 4).toFixed(2) + "s");
+      c.style.setProperty("--swaydelay", (-Math.random() * 6).toFixed(2) + "s");
+
+      var blades = "";
+      var count = 3 + Math.floor(Math.random() * 3);
+      for (var k = 0; k < count; k++) {
+        blades += '<path d="' + BLADES[Math.floor(Math.random() * BLADES.length)] +
+                  '" transform="rotate(' + ((Math.random() - 0.5) * 22).toFixed(1) + ' 35 150)"/>';
+      }
+      c.innerHTML = '<svg class="grass" viewBox="0 0 70 150" style="--h:' +
+                    (80 + Math.random() * 90).toFixed(0) + 'px">' + blades + '</svg>';
+      layer.appendChild(c);
+    }
+    addLayer(layer);
+  }
+
+  function fireflies() {
+    var layer = document.createElement("div");
+    layer.className = "ffly-layer";
+    layer.setAttribute("aria-hidden", "true");
+
+    var stars = window.innerWidth < 640 ? 26 : 46;
+    for (var j = 0; j < stars; j++) {
+      var st = document.createElement("span");
+      st.className = "star";
+      st.style.left = (Math.random() * 100).toFixed(1) + "%";
+      st.style.top = (Math.random() * 62).toFixed(1) + "%";
+      st.style.setProperty("--t", (1.8 + Math.random() * 3.4).toFixed(2) + "s");
+      st.style.setProperty("--delay", (-Math.random() * 4).toFixed(2) + "s");
+      layer.appendChild(st);
+    }
+
+    var n = window.innerWidth < 640 ? 16 : 26;
+    for (var i = 0; i < n; i++) {
+      var path = document.createElement("div");
+      path.className = "ffly-path";
+      path.style.left = (3 + Math.random() * 94).toFixed(1) + "%";
+      path.style.top = (10 + Math.random() * 84).toFixed(1) + "%";
+      path.style.setProperty("--dx", (30 + Math.random() * 120).toFixed(0) + "px");
+      path.style.setProperty("--dy", (18 + Math.random() * 70).toFixed(0) + "px");
+      path.style.setProperty("--dur", (11 + Math.random() * 16).toFixed(1) + "s");
+      path.style.setProperty("--dur2", (7 + Math.random() * 11).toFixed(1) + "s");
+      path.style.setProperty("--delay", (-Math.random() * 18).toFixed(1) + "s");
+
+      var yy = document.createElement("div");
+      yy.className = "ffly-y";
+
+      var bug = document.createElement("span");
+      bug.className = "ffly";
+      bug.style.setProperty("--s", (4 + Math.random() * 4).toFixed(1) + "px");
+      bug.style.setProperty("--blink", (2.2 + Math.random() * 3.4).toFixed(2) + "s");
+      bug.style.setProperty("--bdelay", (-Math.random() * 5).toFixed(2) + "s");
+
+      yy.appendChild(bug);
+      path.appendChild(yy);
+      layer.appendChild(path);
+    }
+    addLayer(layer);
+  }
+
+  /* ---------- playground ---------- */
+
+  var SHIRTS = ["#E4572E", "#2E86AB", "#F2B33D", "#6FBF73", "#B565A7", "#4E9BD1"];
+  var PANTS  = ["#3A5A78", "#6B4A34", "#2F6B57", "#7A3F52", "#44506B"];
+  var HAIRS  = ["#2E2118", "#7A4B23", "#E0B44E", "#171310", "#A85B2E"];
+  var SKINS  = ["#F3C79E", "#DCA679", "#B07C53", "#7A5334"];
+  var SHOES  = ["#2B2B30", "#D45242", "#3A5A78"];
+
+  function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  /* A cartoon child drawn in a 40 x 66 box, feet at y = 64. */
+  function kid(pose, o) {
+    o = o || {};
+    var shirt = o.shirt || rnd(SHIRTS);
+    var pants = o.pants || rnd(PANTS);
+    var hair  = o.hair  || rnd(HAIRS);
+    var skin  = o.skin  || rnd(SKINS);
+    var shoe  = o.shoe  || rnd(SHOES);
+
+    var limbs = "";
+
+    if (pose === "sit") {
+      /* legs out front, arms up holding on */
+      limbs +=
+        '<rect x="13" y="45" width="19" height="7" rx="3.5" fill="' + skin + '" transform="rotate(-7 13 45)"/>' +
+        '<rect x="27" y="47" width="6.5" height="12" rx="3.2" fill="' + skin + '"/>' +
+        '<rect x="26" y="56" width="10" height="5.5" rx="2.7" fill="' + shoe + '"/>' +
+        '<rect x="6" y="27" width="5" height="15" rx="2.5" fill="' + skin + '" transform="rotate(205 8.5 29)"/>' +
+        '<rect x="29" y="27" width="5" height="15" rx="2.5" fill="' + skin + '" transform="rotate(155 31.5 29)"/>';
+    } else if (pose === "up") {
+      limbs +=
+        '<rect x="12.5" y="48" width="6" height="12" rx="3" fill="' + skin + '"/>' +
+        '<rect x="21.5" y="48" width="6" height="12" rx="3" fill="' + skin + '"/>' +
+        '<rect x="10.5" y="58" width="9.5" height="5.5" rx="2.7" fill="' + shoe + '"/>' +
+        '<rect x="20" y="58" width="9.5" height="5.5" rx="2.7" fill="' + shoe + '"/>' +
+        '<rect x="6" y="27" width="5" height="16" rx="2.5" fill="' + skin + '" transform="rotate(200 8.5 29)"/>' +
+        '<rect x="29" y="27" width="5" height="16" rx="2.5" fill="' + skin + '" transform="rotate(160 31.5 29)"/>';
+    } else if (pose === "run") {
+      limbs +=
+        '<rect x="12.5" y="47" width="6" height="14" rx="3" fill="' + skin + '" transform="rotate(-20 15.5 47)"/>' +
+        '<rect x="21.5" y="47" width="6" height="14" rx="3" fill="' + skin + '" transform="rotate(24 24.5 47)"/>' +
+        '<rect x="6" y="58" width="10" height="5.5" rx="2.7" fill="' + shoe + '" transform="rotate(-18 11 60)"/>' +
+        '<rect x="24" y="58" width="10" height="5.5" rx="2.7" fill="' + shoe + '" transform="rotate(20 29 60)"/>' +
+        '<rect x="6" y="27" width="5" height="15" rx="2.5" fill="' + skin + '" transform="rotate(-34 8.5 29)"/>' +
+        '<rect x="29" y="27" width="5" height="15" rx="2.5" fill="' + skin + '" transform="rotate(32 31.5 29)"/>';
+    } else {
+      /* hang: seated with legs down, arms at sides */
+      limbs +=
+        '<rect x="12.5" y="48" width="6" height="13" rx="3" fill="' + skin + '"/>' +
+        '<rect x="21.5" y="48" width="6" height="13" rx="3" fill="' + skin + '"/>' +
+        '<rect x="10.5" y="59" width="9.5" height="5.5" rx="2.7" fill="' + shoe + '"/>' +
+        '<rect x="20" y="59" width="9.5" height="5.5" rx="2.7" fill="' + shoe + '"/>' +
+        '<rect x="6" y="27" width="5" height="15" rx="2.5" fill="' + skin + '"/>' +
+        '<rect x="29" y="27" width="5" height="15" rx="2.5" fill="' + skin + '"/>';
+    }
+
+    return limbs +
+      '<rect x="10.5" y="41" width="19" height="9" rx="3" fill="' + pants + '"/>' +
+      '<rect x="9.5" y="26" width="21" height="18" rx="6.5" fill="' + shirt + '"/>' +
+      '<circle cx="20" cy="15" r="12" fill="' + skin + '"/>' +
+      '<path d="M8.5 14.5 C8.5 5.5 14 2 20 2 C26 2 31.5 5.5 31.5 14.5 C28 9.5 24.2 8 20 8 C15.8 8 12 9.5 8.5 14.5 Z" fill="' + hair + '"/>' +
+      '<circle cx="14.6" cy="19.4" r="2.1" fill="#E98C7A" opacity="0.5"/>' +
+      '<circle cx="25.4" cy="19.4" r="2.1" fill="#E98C7A" opacity="0.5"/>' +
+      '<circle cx="15.8" cy="15.4" r="1.9" fill="#241E1A"/>' +
+      '<circle cx="24.2" cy="15.4" r="1.9" fill="#241E1A"/>' +
+      '<path d="M16.4 20.4 Q20 23.8 23.6 20.4" stroke="#241E1A" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+  }
+
+  function place(markup, x, y, scale) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + scale + ')">' + markup + '</g>';
+  }
+
+  function swingSet() {
+    function swing(px, dur, rider) {
+      return '<g class="swing" style="--ox:' + px + 'px;--oy:30px;--sw:' + dur + 's">' +
+        '<path class="chain" d="M' + (px - 7) + ' 32 L' + (px - 7) + ' 104"/>' +
+        '<path class="chain" d="M' + (px + 7) + ' 32 L' + (px + 7) + ' 104"/>' +
+        '<rect class="rub" x="' + (px - 15) + '" y="103" width="30" height="6" rx="3"/>' +
+        (rider ? place(kid("sit"), px - 20, 58, 1) : "") +
+        '</g>';
+    }
+    return '<svg viewBox="0 0 210 165">' +
+      '<ellipse class="mulch" cx="105" cy="158" rx="100" ry="10"/>' +
+      '<path class="mtl" d="M12 158 L22 158 L54 30 L48 30 Z"/>' +
+      '<path class="mtl" d="M86 158 L96 158 L60 30 L54 30 Z"/>' +
+      '<path class="mtl" d="M114 158 L124 158 L156 30 L150 30 Z"/>' +
+      '<path class="mtl" d="M188 158 L198 158 L162 30 L156 30 Z"/>' +
+      '<rect class="mtl" x="46" y="24" width="118" height="10" rx="5"/>' +
+      '<rect class="mtl-lt" x="49" y="26" width="112" height="3" rx="1.5"/>' +
+      swing(76, 2.7, true) + swing(134, 3.3, false) +
+      '</svg>';
+  }
+
+  function slideSet() {
+    return '<svg viewBox="0 0 180 165">' +
+      '<ellipse class="mulch" cx="90" cy="158" rx="86" ry="10"/>' +
+      '<path class="rail" d="M34 156 L34 62"/>' +
+      '<path class="rail" d="M60 156 L60 62"/>' +
+      '<rect class="mtl-lt" x="30" y="132" width="34" height="6" rx="3"/>' +
+      '<rect class="mtl-lt" x="30" y="110" width="34" height="6" rx="3"/>' +
+      '<rect class="mtl-lt" x="30" y="88" width="34" height="6" rx="3"/>' +
+      '<path class="rail" d="M28 60 L28 26"/>' +
+      '<path class="rail" d="M68 60 L68 26"/>' +
+      '<path class="rail rail-lt" d="M28 34 L68 34"/>' +
+      '<path class="pl-a" d="M70 52 C122 68 142 112 162 154 L142 158 C124 118 106 80 70 68 Z"/>' +
+      '<path d="M74 57 C120 74 138 114 154 152" stroke="#F8CE7A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<path class="rail" d="M70 48 C124 64 146 110 166 152"/>' +
+      '<rect class="pl-b" x="22" y="52" width="52" height="10" rx="4"/>' +
+      place(kid("up"), 36, 12, 0.62) +
+      '</svg>';
+  }
+
+  function seesawSet() {
+    return '<svg viewBox="0 0 200 118">' +
+      '<ellipse class="mulch" cx="100" cy="112" rx="94" ry="8"/>' +
+      '<path class="mtl" d="M100 58 L118 110 L82 110 Z"/>' +
+      '<rect class="mtl-lt" x="92" y="52" width="16" height="9" rx="4.5"/>' +
+      '<g class="plank" style="--ox:100px;--oy:58px;--tt:3.1s">' +
+      '<rect class="pl-b" x="14" y="52" width="172" height="11" rx="5.5"/>' +
+      '<rect class="mtl-lt" x="17" y="54" width="166" height="3" rx="1.5"/>' +
+      '<path class="rail rail-lt" d="M46 52 L46 38"/>' +
+      '<path class="rail rail-lt" d="M154 52 L154 38"/>' +
+      '<rect class="pl-a" x="18" y="44" width="30" height="9" rx="4"/>' +
+      '<rect class="pl-a" x="152" y="44" width="30" height="9" rx="4"/>' +
+      place(kid("hang"), 15, 3, 0.92) +
+      place(kid("hang"), 149, 3, 0.92) +
+      '</g></svg>';
+  }
+
+  function playground() {
+    var layer = document.createElement("div");
+    layer.className = "play-layer";
+    layer.setAttribute("aria-hidden", "true");
+
+    var band = document.createElement("div");
+    band.className = "ground-band";
+    layer.appendChild(band);
+
+    var narrow = window.innerWidth < 640;
+    var rigs = narrow
+      ? [{ svg: swingSet(), left: 27, h: 176 }, { svg: seesawSet(), left: 79, h: 104 }]
+      : [{ svg: swingSet(), left: 16, h: 208 },
+         { svg: slideSet(), left: 56, h: 186 },
+         { svg: seesawSet(), left: 86, h: 118 }];
+
+    for (var i = 0; i < rigs.length; i++) {
+      var r = document.createElement("div");
+      r.className = "rig";
+      r.style.left = rigs[i].left + "%";
+      r.style.bottom = (10 + Math.random() * 12).toFixed(0) + "px";
+      r.innerHTML = rigs[i].svg.replace("<svg ", '<svg style="--h:' + rigs[i].h + 'px" ');
+      layer.appendChild(r);
+    }
+
+    for (var k = 0; k < 2; k++) {
+      var path = document.createElement("div");
+      path.className = "bfly-path" + (k % 2 ? " rev" : "");
+      path.style.setProperty("--y", (66 + Math.random() * 18).toFixed(1) + "%");
+      path.style.setProperty("--dur", (26 + Math.random() * 16).toFixed(1) + "s");
+      path.style.setProperty("--delay", (-Math.random() * 30).toFixed(1) + "s");
+      var hop = document.createElement("div");
+      hop.className = "hop";
+      hop.style.setProperty("--hp", (0.38 + Math.random() * 0.18).toFixed(2) + "s");
+      hop.innerHTML = '<svg class="kid" viewBox="0 0 40 66" style="--scale:' +
+                      (0.95 + Math.random() * 0.5).toFixed(2) + '">' + kid("run") + '</svg>';
+      path.appendChild(hop);
+      layer.appendChild(path);
+    }
+
+    var ball = document.createElement("div");
+    ball.className = "ball";
+    ball.style.left = narrow ? "58%" : "40%";
+    ball.style.bottom = "44px";
+    ball.style.setProperty("--bd", "0.72s");
+    layer.appendChild(ball);
+
+    var kite = document.createElement("div");
+    kite.className = "kite";
+    kite.style.left = "70%";
+    kite.style.top = "8%";
+    kite.innerHTML = '<svg width="38" height="92" viewBox="0 0 40 96">' +
+      '<path d="M20 2 L34 22 L20 46 L6 22 Z" fill="#D45242"/>' +
+      '<path d="M20 2 L20 46 M6 22 L34 22" stroke="#F2E5D0" stroke-width="1.4"/>' +
+      '<path d="M20 46 C25 57 14 63 18 74 C22 84 14 88 16 96" stroke="#8C6B4A" stroke-width="1.6" fill="none"/>' +
+      '<path d="M17.4 60 l5 1.6 M15.6 74 l5 1.6 M15.2 88 l5 1.6" stroke="#EFAF3A" stroke-width="2.4" stroke-linecap="round"/>' +
+      '</svg>';
+    layer.appendChild(kite);
+
+    addLayer(layer);
+  }
+
+  /* ---------- scene ---------- */
+
+  var bgLayers = [];
+
+  function addLayer(el) {
+    document.body.insertBefore(el, document.body.firstChild);
+    bgLayers.push(el);
+  }
+
+  function buildScene() {
+    for (var i = 0; i < bgLayers.length; i++) {
+      if (bgLayers[i].parentNode) bgLayers[i].parentNode.removeChild(bgLayers[i]);
+    }
+    bgLayers = [];
+
+    var scene = sceneFor(level);
+    if (scene === "day") document.documentElement.removeAttribute("data-scene");
+    else document.documentElement.setAttribute("data-scene", scene);
+
+    if (scene === "dusk") { nightGrass(); fireflies(); }
+    else if (scene === "play") { playground(); }
+    else { flowers(); butterflies(); }
+  }
+
+  function sceneFor(lvl) {
+    var m = lvl % 3;
+    return m === 1 ? "day" : m === 2 ? "dusk" : "play";
+  }
+
+  /* ---------- play ---------- */
+
+  function newLevel(lvl) {
+    level = lvl;
+    var n = colorsFor(level);
+    tubes = generate(n);
+    start = clone(tubes);
+    history = [];
+    moves = 0;
+    won = false;
+    bNext.hidden = true;
+    bNext.classList.remove("primary");
+    winEl.hidden = true;
+    stopFx();
+    buildScene();
+    buildSwatches(n);
+    buildBoard();
+    setSel(-1);
+    clearHint();
+    killGhost();
+    pd = null;
+    var sc = sceneFor(level);
+    setMsg(sc === "dusk" ? "Dusk falls. The fireflies are out."
+         : sc === "play" ? "Afternoon light, and the playground is busy."
+         : "Drag from one bottle onto another to pour — or tap one, then tap the other.", false);
+    refresh();
+    save();
+  }
+
+  function restart() {
+    tubes = clone(start);
+    history = [];
+    moves = 0;
+    won = false;
+    bNext.hidden = true;
+    bNext.classList.remove("primary");
+    winEl.hidden = true;
+    stopFx();
+    for (var i = 0; i < tubes.length; i++) paint(i, 0);
+    setSel(-1);
+    clearHint();
+    killGhost();
+    pd = null;
+    setMsg("Back to the opening layout.", false);
+    refresh();
+  }
+
+  var FLOURISH = [
+    "Every pigment in its bottle",
+    "Not a drop out of place",
+    "All corked and settled",
+    "Nothing left to decant",
+    "Sorted to the last measure"
+  ];
+
+  function showWin() {
+    document.getElementById("win-eyebrow").textContent = "Round " + level + " cleared";
+    winTitle.textContent = FLOURISH[Math.floor(Math.random() * FLOURISH.length)];
+    winSub.textContent = moves + (moves === 1 ? " pour" : " pours") + " · " + colorsFor(level) + " pigments";
+    winEl.hidden = false;
+    celebrate();
+    try { bNext2.focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  function hideWin() {
+    winEl.hidden = true;
+    bNext.hidden = false;
+    bNext.classList.add("primary");
+  }
+
+  function refuse(i) {
+    if (tubes[i].length >= CAP) setMsg("That bottle is full.", false);
+    else setMsg("Only onto the same pigment, or into an empty bottle.", false);
+  }
+
+  function tap(i) {
+    if (won) return;
+    clearHint();
+    if (sel < 0) {
+      if (!tubes[i].length) { setMsg("That bottle is empty — nothing to lift.", false); return; }
+      setSel(i);
+      setMsg("Now tap where to pour it.", false);
+      return;
+    }
+    if (i === sel) { setSel(-1); setMsg("Set back down.", false); return; }
+
+    if (!legal(tubes, sel, i)) {
+      refuse(i);
+      if (tubes[i].length) setSel(i); else setSel(-1);
+      return;
+    }
+    commitPour(sel, i);
+  }
+
+  function commitPour(from, i) {
+    history.push({ st: clone(tubes), moves: moves });
+    if (history.length > 400) history.shift();
+    var n = pour(tubes, from, i);
+    moves++;
+    setSel(-1);
+    paint(from, 0);
+    paint(i, n);
+
+    if (isWon(tubes)) {
+      won = true;
+      setMsg("Round cleared in " + moves + " pours.", true);
+      save(level + 1);
+      setTimeout(showWin, 260);
+    } else {
+      setMsg(n === 1 ? "One measure poured." : n + " measures poured.", false);
+    }
+    refresh();
+  }
+
+  function undo() {
+    if (!history.length || won) return;
+    var prev = history.pop();
+    tubes = prev.st;
+    moves = prev.moves;
+    for (var i = 0; i < tubes.length; i++) paint(i, 0);
+    setSel(-1);
+    clearHint();
+    setMsg("Pour taken back.", false);
+    refresh();
+  }
+
+  function hint() {
+    if (won) return;
+    clearHint();
+    setMsg("Reading the bottles…", false);
+    var r = solve(tubes, 220000);
+    if (!r.path) {
+      setMsg(r.overBudget
+        ? "Can't see a line from here — try undoing a pour or two."
+        : "This position is stuck. Undo, or restart the round.", false);
+      return;
+    }
+    if (!r.path.length) return;
+    var a = r.path[0][0], b = r.path[0][1];
+    els[a].classList.add("hint");
+    els[b].classList.add("hint");
+    setMsg("Pour bottle " + (a + 1) + " into bottle " + (b + 1) + ".", false);
+    hintTimer = setTimeout(clearHint, 2800);
+  }
+
+  /* ---------- persistence (per-viewer convenience) ---------- */
+
+  function save(next) {
+    try { localStorage.setItem("decanting-bench.level", String(next || level)); } catch (e) {}
+  }
+
+  function load() {
+    try {
+      var v = parseInt(localStorage.getItem("decanting-bench.level"), 10);
+      if (v && v > 0 && v < 400) return v;
+    } catch (e) {}
+    return 1;
+  }
+
+  /* ---------- wiring ---------- */
+
+  var pd = null;
+  var ghostEl = null;
+
+  function bottleAt(x, y) {
+    var el = document.elementFromPoint(x, y);
+    el = el && el.closest ? el.closest(".bottle") : null;
+    return el ? parseInt(el.dataset.i, 10) : -1;
+  }
+
+  function makeGhost() {
+    var t = tubes[sel];
+    if (!t.length) return;
+    var n = topRun(t);
+    var hex = PIGMENTS[t[t.length - 1]].hex;
+    ghostEl = document.createElement("div");
+    ghostEl.className = "ghost";
+    for (var k = 0; k < n; k++) {
+      var b = document.createElement("span");
+      b.style.background = hex;
+      ghostEl.appendChild(b);
+    }
+    document.body.appendChild(ghostEl);
+    els[sel].classList.add("drag");
+    var segs = els[sel].querySelectorAll(".seg");
+    for (var j = segs.length - n; j < segs.length; j++) segs[j].classList.add("ghosted");
+  }
+
+  function killGhost() {
+    if (ghostEl && ghostEl.parentNode) ghostEl.parentNode.removeChild(ghostEl);
+    ghostEl = null;
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.remove("target");
+      els[i].classList.remove("no");
+      els[i].classList.remove("drag");
+      var segs = els[i].querySelectorAll(".seg.ghosted");
+      for (var j = 0; j < segs.length; j++) segs[j].classList.remove("ghosted");
+    }
+  }
+
+  board.addEventListener("pointerdown", function (e) {
+    if (e.button > 0) return;
+    if (won) return;
+    var el = e.target.closest ? e.target.closest(".bottle") : null;
+    if (!el) return;
+    var i = parseInt(el.dataset.i, 10);
+    pd = { i: i, x: e.clientX, y: e.clientY, moved: false, tookSel: false };
+    clearHint();
+    if (sel < 0 && tubes[i].length) {
+      setSel(i);
+      setMsg("Drag it onto another bottle, or tap where to pour.", false);
+      pd.tookSel = true;
+    }
+    try { board.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+
+  board.addEventListener("pointermove", function (e) {
+    if (!pd) return;
+    if (!pd.moved) {
+      var dx = e.clientX - pd.x, dy = e.clientY - pd.y;
+      if (dx * dx + dy * dy < 49) return;
+      pd.moved = true;
+      if (sel === pd.i && tubes[sel].length) makeGhost();
+    }
+    if (!ghostEl) return;
+    e.preventDefault();
+    ghostEl.style.left = e.clientX + "px";
+    ghostEl.style.top = e.clientY + "px";
+    var over = bottleAt(e.clientX, e.clientY);
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.remove("target");
+      els[i].classList.remove("no");
+    }
+    if (over >= 0 && over !== sel) {
+      els[over].classList.add(legal(tubes, sel, over) ? "target" : "no");
+    }
+  });
+
+  function endPointer(e) {
+    if (!pd) return;
+    var dragged = !!ghostEl;
+    var from = sel;
+    var over = dragged ? bottleAt(e.clientX, e.clientY) : -1;
+    killGhost();
+    try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+
+    if (dragged) {
+      if (over >= 0 && over !== from && legal(tubes, from, over)) {
+        commitPour(from, over);
+      } else if (over >= 0 && over !== from) {
+        refuse(over);
+      } else {
+        setSel(-1);
+        setMsg("Set back down.", false);
+      }
+    } else if (!pd.tookSel) {
+      tap(pd.i);
+    }
+    pd = null;
+  }
+
+  board.addEventListener("pointerup", endPointer);
+
+  board.addEventListener("pointercancel", function () {
+    killGhost();
+    pd = null;
+  });
+
+  /* keyboard activation of a bottle button (click with detail 0) */
+  board.addEventListener("click", function (e) {
+    if (e.detail !== 0) return;
+    var el = e.target.closest ? e.target.closest(".bottle") : null;
+    if (el) tap(parseInt(el.dataset.i, 10));
+  });
+
+  bUndo.addEventListener("click", undo);
+  bRestart.addEventListener("click", restart);
+  bHint.addEventListener("click", hint);
+  bNew.addEventListener("click", function () { newLevel(level); });
+  bNext.addEventListener("click", function () { newLevel(level + 1); });
+  bNext2.addEventListener("click", function () { newLevel(level + 1); });
+  bStay.addEventListener("click", hideWin);
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target && e.target.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) return;
+    if (e.key === "u" || e.key === "z") undo();
+    else if (e.key === "h") hint();
+    else if (e.key === "r") restart();
+    else if (e.key === "Escape") { setSel(-1); clearHint(); }
+  });
+
+  var resume = load();
+  newLevel(resume);
+  if (resume > 1) setMsg("Picking up at round " + resume + ".", false);
+})();
+</script>
+
+</body>
+</html>
