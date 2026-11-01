@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Icon generator · Flappy Unicorn Golf</title>
+<style>
+  body { font: 14px system-ui, sans-serif; background: #eee; margin: 20px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  figure { margin: 0; text-align: center; }
+  canvas { display: block; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .mask canvas { border-radius: 50%; }
+</style>
+</head>
+<body>
+<p>Draws the app icons with the game's own art (src/draw.js). Click a canvas to download its PNG and save it into <code>icons/</code>.</p>
+<div class="row" id="out"></div>
+
+<script src="../src/draw.js"></script>
+<script>
+// size: output px. safe: fraction of the canvas the artwork may use. Maskable
+// icons get cropped to a circle (or other shape) at 80%, so their art is shrunk.
+const ICONS = [
+  { file: 'apple-touch-icon.png', size: 180, safe: 1 },
+  { file: 'icon-192.png', size: 192, safe: 1 },
+  { file: 'icon-512.png', size: 512, safe: 1 },
+  { file: 'icon-maskable-512.png', size: 512, safe: 0.8, mask: true },
+  { file: 'favicon-32.png', size: 32, safe: 1, simple: true }
+];
+
+const art = new GameDrawing();
+art.O = '#4a3570';
+art.RAINBOW = ['#ff6b9a', '#ffa94d', '#ffe066', '#69db7c', '#4dabf7', '#9775fa'];
+
+function drawIcon(ctx, S, safe, simple) {
+  // sky (full bleed, always)
+  const sky = ctx.createLinearGradient(0, 0, 0, S);
+  sky.addColorStop(0, '#6ec6ff'); sky.addColorStop(0.6, '#c3b1ff'); sky.addColorStop(1, '#ffc9e6');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, S, S);
+
+  // artwork is laid out on a 100x100 grid, centered inside the safe area
+  const k = (S * safe) / 100, off = (S - S * safe) / 2;
+  ctx.save();
+  ctx.translate(off, off); ctx.scale(k, k);
+
+  // rainbow arc behind
+  // (the game's rainbow is sized in screen px: 13px bands, so draw it big and scale down)
+  ctx.save(); ctx.translate(50, 86); ctx.scale(0.2, 0.2); art.rainbow(ctx, 0, 0, 215, 0.6); ctx.restore();
+  // grassy hill
+  ctx.fillStyle = '#69db7c'; ctx.strokeStyle = art.O; ctx.lineWidth = 2.2;
+  ctx.beginPath(); ctx.ellipse(50, 112, 78, 34, 0, Math.PI, 0); ctx.fill(); ctx.stroke();
+  if (!simple) {
+    // sparkles
+    ctx.fillStyle = '#ffffff';
+    art.star(ctx, 16, 20, 4); art.star(ctx, 84, 16, 3); art.star(ctx, 86, 46, 2.5);
+  }
+  // the unicorn, wings up, wearing the par crown
+  ctx.save();
+  ctx.translate(50, 54);
+  const u = simple ? 1.35 : 1.15;
+  ctx.scale(u, u);
+  art.drawUnicorn(ctx, 0, 0, -0.12, 1, 0.2, 0, true);
+  ctx.restore();
+  ctx.restore();
+}
+
+for (const ic of ICONS) {
+  const c = document.createElement('canvas');
+  c.width = c.height = ic.size;
+  c.dataset.file = ic.file;
+  drawIcon(c.getContext('2d'), ic.size, ic.safe, ic.simple);
+  c.title = 'Download ' + ic.file;
+  c.onclick = () => { const a = document.createElement('a'); a.download = ic.file; a.href = c.toDataURL('image/png'); a.click(); };
+  const fig = document.createElement('figure');
+  if (ic.mask) fig.className = 'mask';
+  fig.append(c, Object.assign(document.createElement('figcaption'), { textContent: ic.file }));
+  document.getElementById('out').append(fig);
+}
+</script>
+</body>
+</html>

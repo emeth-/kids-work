@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Flappy Unicorn Golf</title>
+  <meta name="description" content="Flap a unicorn into a castle in as few flaps as you can.">
+
+  <!-- installable app (PWA). All paths are relative so it works under a GitHub Pages /repo-name/ path -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#2b2146">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <!-- iOS "Add to Home Screen" -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Unicorn Golf">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!--
+  HUD binding convention (see src/hud.js):
+    data-show="key"  element is visible only when hudState()[key] is truthy
+    data-hide="key"  element is hidden when hudState()[key] is truthy
+    data-text="key"  textContent = hudState()[key]
+    data-action="x"  click calls the named action in src/main.js
+-->
+<div class="fg-root" id="game" tabindex="0"
+     aria-label="Flappy Unicorn Golf. Left and right arrow keys, or tap the left and right side of the screen, to flap.">
+  <canvas id="canvas"></canvas>
+
+  <!-- top-left: hole / par / flaps / fire timer -->
+  <div class="hud" data-show="showHud">
+    <div class="chip bold">Hole <span data-text="holeNum"></span>/<span data-text="holeCount"></span></div>
+    <div class="chip">Par <span data-text="par"></span></div>
+    <div class="chip bold yellow">Flaps <span data-text="strokes"></span></div>
+    <div class="chip heat" id="heat" data-show="hasLava">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff6b1a" stroke="#4a3570" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c.5 3.5 5.5 6 5.5 11.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.2 2.6-5.3.2 2 1 3.1 2.2 3.3-.6-3.6-.2-6.6.7-9.5z"/></svg>
+      <div class="heat-track"><div class="heat-fill" id="heat-fill"></div></div>
+      <span><span data-text="heatSec"></span>s</span>
+    </div>
+  </div>
+
+  <!-- top-right: restart + mute -->
+  <div class="corner">
+    <button type="button" class="icon-btn" data-action="retryHole" data-show="showHud" aria-label="Restart this hole">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>
+    </button>
+    <button type="button" class="icon-btn" data-action="toggleMute" id="mute-btn" aria-label="Turn sound off">
+      <svg data-show="muted" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
+      <svg data-hide="muted" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+    </button>
+  </div>
+
+  <!-- hole intro banner -->
+  <div class="banner drop-long" data-show="banner">
+    <div class="banner-title">Hole <span data-text="holeNum"></span></div>
+    <div class="banner-sub"><span data-text="holeName"></span> · Par <span data-text="par"></span></div>
+    <div class="banner-tip" data-show="holeTip" data-text="holeTip"></div>
+  </div>
+
+  <!-- transient message ("Splash! +1 penalty flap") -->
+  <div class="toast-wrap drop" id="toast" data-show="toast">
+    <div class="toast" data-text="toast"></div>
+  </div>
+
+  <!-- on-screen flap buttons (touch) -->
+  <div class="flap-row" data-show="isPlay">
+    <button type="button" class="flap-btn" data-flap="-1" aria-label="Flap left">
+      <svg width="44%" height="44%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 17 7 7"/><path d="M7 16V7h9"/></svg>
+    </button>
+    <button type="button" class="flap-btn" data-flap="1" aria-label="Flap right">
+      <svg width="44%" height="44%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+    </button>
+  </div>
+
+  <!-- title screen -->
+  <div class="overlay title fade" data-show="isTitle">
+    <div class="title-box pop">
+      <h1 class="logo">
+        <span>Flappy</span>
+        <span class="unicorn">Unicorn</span>
+        <span class="golf">Golf</span>
+      </h1>
+      <p class="intro">Flap left or right to drop your unicorn into the castle through its open top in as few flaps as you can. <span data-text="holeCount"></span> holes, par <span data-text="coursePar"></span>.</p>
+      <button type="button" class="btn big" data-action="startRound">Tee off</button>
+      <div class="outlined" style="font-size: 16px" data-show="bestTotal">Best round: <span data-text="bestTotal"></span> flaps</div>
+      <div class="outlined" style="font-size: 15px">← → keys · A / D · or tap either side</div>
+    </div>
+  </div>
+
+  <!-- hole complete (inside the castle) -->
+  <div class="overlay side fade" data-show="isHoled">
+    <div class="card pop" role="dialog" aria-label="Hole complete">
+      <div class="card-kicker">Hole <span data-text="holeNum"></span> · <span data-text="holeName"></span></div>
+      <h2 data-text="resultLabel"></h2>
+      <div class="stars" id="stars"></div>
+      <div class="card-line"><span data-text="strokes"></span> flaps · par <span data-text="par"></span></div>
+      <button type="button" class="btn" data-action="nextHole" data-text="nextLabel"></button>
+      <div class="card-hint">← → ↑ ↓ walk · Space fly · or tap the floor</div>
+    </div>
+  </div>
+
+  <!-- end-of-round scorecard -->
+  <div class="overlay side fade" data-show="isDone">
+    <div class="card wide pop" role="dialog" aria-label="Scorecard">
+      <h2>Round complete</h2>
+      <div class="score">
+        <div class="score-row head"><div class="name">Hole</div><div class="par">Par</div><div class="flaps">Flaps</div></div>
+        <div id="score-rows" class="score"></div>
+      </div>
+      <div class="score-total"><span>Total <span data-text="total"></span></span><span class="vs" data-text="vsPar"></span></div>
+      <div class="badge" data-show="newBest">New best round!</div>
+      <button type="button" class="btn gold-text" data-action="startRound">Play again</button>
+      <div class="card-hint">← → ↑ ↓ walk · Space fly · or tap the floor</div>
+    </div>
+  </div>
+</div>
+
+<script src="src/course.js"></script>
+<script src="src/draw.js"></script>
+<script src="src/game.js"></script>
+<script src="src/hud.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
