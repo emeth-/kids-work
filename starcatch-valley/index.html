@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Starcatch Valley</title>
+<meta name="description" content="Race the birds through the valley by flying into the star with the right answer.">
+
+<!-- installable app (PWA). All paths are relative so it works under a GitHub Pages /repo-name/ path -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#08061F">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<!-- iOS "Add to Home Screen" -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Starcatch">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app" data-state="attract">
+  <div id="stage"></div>
+
+  <div class="hud">
+    <div class="speed" id="speed"></div>
+    <div class="hurt" id="hurt"></div>
+    <div class="alabels" id="alabels" aria-hidden="true"><span class="al" hidden></span><span class="al" hidden></span><span class="al" hidden></span><span class="al" hidden></span></div>
+    <div class="top">
+      <div class="brand">
+        <span class="wordmark">Starcatch <span class="rb">Valley</span></span>
+        <button class="iconbtn racehud" id="pauseBtn" type="button">Pause</button>
+      </div>
+      <div class="qcard racehud">
+        <div class="qlabel" id="qlabel">Get ready</div>
+        <div class="qtext" id="qtext">&nbsp;</div>
+        <div class="qgrid" id="qgrid"><span></span><span></span><span></span><span></span></div>
+        <div class="boost" id="boost"><b>Boost</b><span class="bar"><i id="boostBar"></i></span></div>
+      </div>
+      <div class="score racehud">
+        <div class="pts" id="pts">0</div>
+        <div class="sub">points · <span id="clock">0.0s</span></div>
+      </div>
+    </div>
+    <div class="reticle racehud" id="reticle"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="hint" id="hint"></div>
+    <div class="race racehud" aria-label="Race progress">
+      <div class="rtrack" id="rtrack"><i class="rfill" id="rfill"></i><span class="finish"></span></div>
+    </div>
+  </div>
+
+  <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+  <div class="overlay" id="overlay"></div>
+</div>
+
+<script src="vendor/three.min.js"></script>
+<script src="src/tuning.js"></script>
+<script src="src/util.js"></script>
+<script src="src/questions.js"></script>
+<script src="src/game.js"></script>
+<script src="src/pwa.js"></script>
+</body>
+</html>

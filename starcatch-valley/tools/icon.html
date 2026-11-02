@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Icon generator · Starcatch Valley</title>
+<style>
+  body { font: 14px system-ui, sans-serif; background: #eee; margin: 20px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  figure { margin: 0; text-align: center; }
+  canvas { display: block; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .mask canvas { border-radius: 50%; }
+</style>
+</head>
+<body>
+<p>Draws the app icons in the game's palette. Click a canvas to download its PNG and save it into <code>icons/</code>.</p>
+<div class="row" id="out"></div>
+
+<script>
+// size: output px. safe: fraction of the canvas the artwork may use. Maskable
+// icons get cropped to a circle (or other shape) at 80%, so their art is shrunk.
+const ICONS = [
+  { file: 'apple-touch-icon.png', size: 180, safe: 1 },
+  { file: 'icon-192.png', size: 192, safe: 1 },
+  { file: 'icon-512.png', size: 512, safe: 1 },
+  { file: 'icon-maskable-512.png', size: 512, safe: 0.8 , mask: true },
+  { file: 'favicon-32.png', size: 32, safe: 1, simple: true }
+];
+const RAINBOW = ['#FF3B6B', '#FF9F1C', '#FFE66D', '#4BD9A0', '#3A86FF', '#B15CFF'];
+
+function starPath(ctx, x, y, R, r, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = rot - Math.PI / 2 + (i * Math.PI) / 5, rad = i % 2 ? r : R;
+    ctx.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad);
+  }
+  ctx.closePath();
+}
+function sparkle(ctx, x, y, r) {
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r);
+  ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill();
+}
+
+function drawIcon(ctx, S, safe, simple) {
+  // twilight sky, full bleed
+  const sky = ctx.createLinearGradient(0, 0, 0, S);
+  sky.addColorStop(0, '#150E36'); sky.addColorStop(0.55, '#3A2B70'); sky.addColorStop(0.85, '#B86A9E'); sky.addColorStop(1, '#FFB27A');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, S, S);
+
+  const k = S / 100;
+  ctx.save(); ctx.scale(k, k);
+
+  // star position, in safe-area coordinates (see the translate/scale below)
+  const cx = 56, cy = 40, R = simple ? 30 : 26;
+  const at = (v, c) => 50 + (v - 50) * safe;
+  // its glow sits in the sky, behind the mountains
+  const gx = at(cx), gy = at(cy), gR = R * safe;
+  const glow = ctx.createRadialGradient(gx, gy, gR * 0.3, gx, gy, gR * 1.7);
+  glow.addColorStop(0, 'rgba(255,230,109,0.55)'); glow.addColorStop(1, 'rgba(255,230,109,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, 100, 100);
+
+  // valley walls (full bleed so maskable crops still look right)
+  ctx.fillStyle = '#2A2160';
+  ctx.beginPath(); ctx.moveTo(0, 58); ctx.lineTo(18, 48); ctx.lineTo(34, 62); ctx.lineTo(47, 80); ctx.lineTo(53, 80); ctx.lineTo(66, 60); ctx.lineTo(82, 46); ctx.lineTo(100, 56); ctx.lineTo(100, 100); ctx.lineTo(0, 100); ctx.fill();
+  ctx.fillStyle = '#1F5C4A';
+  ctx.beginPath(); ctx.moveTo(0, 70); ctx.lineTo(14, 66); ctx.lineTo(30, 76); ctx.lineTo(46, 100); ctx.lineTo(0, 100); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(100, 68); ctx.lineTo(86, 64); ctx.lineTo(70, 76); ctx.lineTo(54, 100); ctx.lineTo(100, 100); ctx.fill();
+  // river
+  const rv = ctx.createLinearGradient(0, 80, 0, 100);
+  rv.addColorStop(0, '#9FD3FF'); rv.addColorStop(1, '#3A86FF');
+  ctx.fillStyle = rv;
+  ctx.beginPath(); ctx.moveTo(48.5, 80); ctx.lineTo(51.5, 80); ctx.lineTo(60, 100); ctx.lineTo(40, 100); ctx.fill();
+
+  // the artwork proper is scaled into the safe area around the centre
+  ctx.translate(50, 50); ctx.scale(safe, safe); ctx.translate(-50, -50);
+
+  if (!simple) {
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.9; sparkle(ctx, 18, 18, 3.2); sparkle(ctx, 82, 24, 2.4); sparkle(ctx, 74, 10, 1.6); sparkle(ctx, 28, 36, 1.4);
+    ctx.globalAlpha = 1;
+  }
+
+  // rainbow streak swooping in from the lower left
+  const bw = simple ? 3.4 : 2.6;
+  ctx.lineCap = 'round';
+  RAINBOW.forEach((c, i) => {
+    const o = (i - (RAINBOW.length - 1) / 2) * bw;
+    ctx.strokeStyle = c; ctx.lineWidth = bw + 0.3;
+    ctx.beginPath();
+    ctx.moveTo(-4, 76 + o);
+    ctx.quadraticCurveTo(26 + o * 0.4, 70 + o, 50, 46 + o * 0.7);
+    ctx.stroke();
+  });
+
+  // the star: gold body, highlight
+  starPath(ctx, cx, cy, R, R * 0.48, 0.12);
+  const gold = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
+  gold.addColorStop(0, '#FFE66D'); gold.addColorStop(1, '#FFB21A');
+  ctx.fillStyle = gold; ctx.fill();
+  ctx.lineJoin = 'round'; ctx.lineWidth = simple ? 2.6 : 2; ctx.strokeStyle = '#D99A12'; ctx.stroke();
+  if (!simple) {
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.ellipse(cx - 6, cy - 7, 5, 3, -0.6, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+for (const ic of ICONS) {
+  const c = document.createElement('canvas');
+  c.width = c.height = ic.size;
+  c.dataset.file = ic.file;
+  drawIcon(c.getContext('2d'), ic.size, ic.safe, ic.simple);
+  c.title = 'Download ' + ic.file;
+  c.onclick = () => { const a = document.createElement('a'); a.download = ic.file; a.href = c.toDataURL('image/png'); a.click(); };
+  const fig = document.createElement('figure');
+  if (ic.mask) fig.className = 'mask';
+  fig.append(c, Object.assign(document.createElement('figcaption'), { textContent: ic.file }));
+  document.getElementById('out').append(fig);
+}
+</script>
+</body>
+</html>
